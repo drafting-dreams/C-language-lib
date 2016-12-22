@@ -1,0 +1,40 @@
+#include <stdio.h>
+void bubblesort1(int *arr,int n){    //改良版本冒泡排序法
+	int i, temp, location;
+	n--;
+	while (n > 0) {
+		location = 0;
+		for (i = 0; i < n; i++) {
+			if (*(arr + i) > *(arr + i + 1)) {
+				temp = *(arr + i); *(arr + i) = *(arr + i + 1); *(arr + i + 1) = temp;
+				location = i;
+			}
+		}
+		n = location;   //location记录交换位置，从而减少不必要的比较
+	}
+}
+void bubblesort2(int *arr, int n) {     //双向冒泡排序
+	int m = 0,l1,l2,temp,i;
+	n--;
+	while (n > m) {
+		for (i = m; i < n; i++) {
+			if (*(arr + i) > *(arr + i + 1)) {
+				temp = *(arr + i); *(arr + i) = *(arr + i + 1); *(arr + i + 1) = temp;
+				l2= i;
+			}
+			if (*(arr + n + m - i) < *(arr + n + m-i - 1)) {
+				temp = *(arr + n + m - i); *(arr + n + m - i) = *(arr + n + m - i - 1); *(arr + n + m - i - 1) = temp;
+				l1 = n + m - i ;
+			}
+		}
+		m = l1;  n = l2;
+	}
+}
+int main() {
+	int a[5] = { 54,68,49,21,15 };
+	bubblesort2(a, 5);
+	for (int i = 0; i < 5; i++) {
+		printf("%d ", *(a + i));
+	}
+	return 0;
+}
