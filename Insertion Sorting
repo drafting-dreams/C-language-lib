@@ -1,0 +1,20 @@
+#include <stdio.h>
+void insertion_sort2(int *array, int n) {
+	int i, j, temp;
+	for (i = 1; i <= n - 1; i++) {
+		temp = *(array + i);
+		for (j = i - 1; *(array + j) > temp&&j >= 0; j--)
+			*(array + j + 1) = *(array + j);
+		*(array + j + 1) = temp;
+	}
+}
+int main() {
+	int a[5] = { 4,0,2,5,1 };
+	int k;
+	insertion_sort2(a, 5);
+	for (k = 0; k < 5; k++) printf("%d ", a[k]);
+	return 0;
+}
+/*插入排序的基本操作就是将一个数据插入到已经排好序的有序数据中，从而得到一个新的、个数加一的有序数据，
+算法适用于少量数据的排序，时间复杂度为O(n ^ 2)。是稳定的排序方法。
+*/
