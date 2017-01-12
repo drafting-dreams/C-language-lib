@@ -1,0 +1,54 @@
+#include <stdio.h>
+typedef struct
+{
+	int xuehao;
+	char daihao;
+} elementtype[6];
+elementtype a = { 201401,'a',201402,'b',201501,'c',201502,'d',201503,'e',201601,'f'};
+typedef struct
+{
+	int index;
+	int start;
+	int len;
+}IndexType;
+IndexType I[6];
+
+int createIndex(int n) {
+	int k = 0, m = 0;                    //m索引表长度，k当前子表长度。
+	I[0].index = a[0].xuehao/100; I[0].start = 0;
+	
+	for (int i = 1; i < n; i++) {
+		k++;
+		if (a[i].xuehao / 100 != I[m].index) {
+			I[m++].len = k; 
+			I[m].index = a[i].xuehao / 100;
+			I[m].start = i; k = 0;
+		}
+	}
+	I[m].len = k;
+	return m;
+}
+int main() {
+	createIndex(6);
+	int key, right = createIndex(6), left = 0,mid,t=0;
+	scanf_s("%d", &key);
+	while (left <= right) {                            //二分查找索引
+		mid = (left + right) / 2;
+		if (I[mid].index == key/100) {
+			t = mid+1; break;
+		}
+		if (I[mid].index < key/100) left = mid + 1;
+		else  right = mid - 1;
+	}
+	int z = 0;
+	if (t--) {
+		for (int i = I[t].start; i < I[t].start + I[t].len; i++) {
+			if (a[i].xuehao == key) {
+				printf("%c", a[i].daihao); z = 1; break;
+			}
+		}
+	}
+	else { z = 1; printf("not found"); }
+	if (z == 0) printf("not found");
+	return 0;
+}
