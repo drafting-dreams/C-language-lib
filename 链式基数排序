@@ -1,0 +1,110 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#define Radix 10
+#define N 12
+
+typedef struct RNode
+
+{
+	int key;  //数据域(也是关键字域) 
+	int data;  //辅助变量
+	struct RNode *next;  //指针域
+
+} RNode, *RList;
+
+typedef struct {
+	RNode H[Radix];
+	RNode R[Radix];
+}Head;
+
+//产生N个随机数，建立链表
+int Create(RList p) {
+	srand(time(0));
+	RList q = p, r;
+	int i, max = 0;
+	for (i = 0; i < N; i++) {
+		r = (RList)malloc(sizeof(RNode));
+		r->key = r->data = rand() % 990 + 10;
+		if (r->key > max)max = r->key;
+		q->next = r;
+		q = q->next;
+	}
+	q->next = NULL;
+	return max;
+}//Create
+
+//输出1条链表
+void printlist(RList p) {
+	printf("\n[p]");
+	RList q= p->next;
+	while (q) {
+		printf("->%d", q->key);
+		q = q->next;
+	}
+	putchar(10);
+} //printlist
+ 
+//输出Radix条链表
+void print10(Head L) {
+	for (int i = 0; i < Radix; i++) {
+		RList p = L.H[i].next;
+		if (p)printf("\n[%d]", i);
+		while (p) {
+			printf("->%d", p->key);
+			p = p->next;
+		}
+	}
+	printf("\n");
+}//print10
+
+//Distribution-collection
+void RadixSort(Head &L, RList p) {
+	//Initialization
+	int i;
+	for (i = 0; i < Radix; i++) 
+		L.H[i].next = L.R[i].next = NULL;
+	//Distribution
+	RList q = p->next, r;
+	while (q) {
+		i = q->data%Radix;
+		r = (RList)malloc(sizeof(RNode));
+		r->key = q->key;
+		r->data = q->data/Radix;
+		r->next = NULL;
+		if (!L.H[i].next)L.H[i].next = L.R[i].next = r;
+		else {
+			L.R[i].next->next = r;
+			L.R[i].next = r;
+		}
+		q = q->next;
+	}
+	print10(L);
+
+	//Collection
+	int j = 0;
+	while (!L.H[j].next&&j < Radix) j++;
+	p->next = L.H[j].next;
+	for (i = j + 1; i < Radix; i++) {
+		if (!L.H[i].next)continue;
+		L.R[j].next->next = L.H[i].next;
+		j = i;
+	}
+	printlist(p);
+}//RadixSort
+
+void main() {
+	RList p = (RList)malloc(sizeof(RNode));
+	p->key = p->data = 0;
+	p->next = NULL;
+	int max = Create(p);
+	printlist(p);
+
+	Head L;
+	while (max) {
+		RadixSort(L, p);
+		max /= Radix;
+	}
+	putchar(10);
+}
