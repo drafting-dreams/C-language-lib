@@ -1,0 +1,47 @@
+#define CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <string.h>
+#define N 100
+void count_sort(int *init_r, int *sorted_r, int n) {
+	int min = init_r[0],max=sorted_r[0];
+	for (int i = 0; i < n; i++) {			//找出最大值和最小值
+		if (init_r[i] < min) min = init_r[i];
+		if (init_r[i] > max) max = init_r[i];
+	}
+	int m = max - min + 1;
+	int *count_r = (int*)malloc(sizeof(int)*m);
+	memset(count_r, 0, m * sizeof(int));
+	//统计每个值为i的元素出现的个数；
+	for (int i = 0; i < n; i++)
+		count_r[init_r[i] - min]++;
+	//对所有次数计数累加
+	for (int i = 1; i < m; i++)
+		count_r[i] += count_r[i - 1];
+
+	for (int i = n - 1; i >= 0; i--) {
+		sorted_r[count_r[init_r[i] - min] - 1] = init_r[i];
+		count_r[init_r[i] - min]--;
+	}
+}
+
+void print_arr(int n, char *ch, int * p) {
+	printf("%s", ch);
+	for (int i = 0; i < n; i++)
+		printf("%5d", p[i]);
+	printf("\n");
+}
+
+void main() {
+	srand(time(0));
+	int n = rand() % 8 + 6;
+	int *p = (int*)malloc(sizeof(int)*n);
+	int *sorted= (int*)malloc(sizeof(int)*n);
+	for (int i = 0; i < n; i++)
+		*(p + i) = rand() % N;
+	print_arr(n, "init_array", p);
+	count_sort(p, sorted, n);
+	print_arr(n, "sorted_array", sorted);
+	printf("\n");
+}
