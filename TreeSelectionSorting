@@ -1,0 +1,68 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include <stdlib.h>
+#define N 65
+#define X 100		//定义无穷大元素数据
+//初始化
+void init(int L[], int n) {
+	srand(time(0));
+	L[0] = ceil(log2((double) n));
+	int k =(int) pow(2.0, L[0]) - 1;
+	int i;
+	for (i = 1; i <= k; i++) 
+		L[i] = X;
+	for ( i = k + 1; i <= k + n; i++)
+		L[i] = rand() % 99 + 1;
+	L[i] = X;
+	for (i = 1; i <= n + k + 1; i++)
+		printf("%5d", L[i]);
+	putchar(10);
+}
+//构建完全二叉树
+void Bitree(int L[], int n) {
+	//L[0]存放二叉树高度-1
+	for (int i = L[0]; i >= 1; i--) {
+		int k = (int)pow(2.0, i);
+		for (int j = k; j <= k + n - 1; j += 2)
+			L[j / 2] = L[j] > L[j + 1] ? L[j + 1] : L[j];
+	}
+	L[0] = (int)pow(2, L[0]) + n - 1;//最后节点的编号
+}
+
+void sorting(int L[], int n) {
+	for (int i = 0; i < n; i++) {
+		
+			printf("%5d", L[1]);//输出根节点
+			//将相应节点置为无穷
+			int j = 1;
+			while (L[2 * j] == L[1] || L[2 * j + 1] == L[1]) {
+				j *= 2;
+				if (L[j] != L[1])j++;
+			}
+			L[j] = X;
+			//将第i+1小的数调整到根节点
+			for (int k = j; k > 1; k /= 2) {
+				if (k % 2) j = L[k - 1];
+				else j = L[k + 1];
+				if (j < L[k])L[k / 2] = j;
+				else L[k / 2] = L[k];
+			}
+		}
+	
+}
+
+int main() {
+	printf("n=");
+	int n, L[N];
+	scanf("%d", &n);
+	if (n < 1) return 1;
+	if (n > N / 2) n = N / 2;
+
+	init(L, n);
+	Bitree(L, n);
+	sorting(L, n);
+	printf("\n\n");
+	return 0;
+}
