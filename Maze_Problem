@@ -1,0 +1,221 @@
+//2-12  迷宫问题
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <malloc.h>
+#include <stdlib.h>
+#include <time.h>
+#define N 22
+
+//链栈类型
+typedef struct Node
+{
+	int data1; //数据域-行坐标
+	int data2; //数据域-列坐标
+	struct Node *next; //指针域
+} SNode, *MazeStack;
+
+//判断存储分配是否成功
+int MallocOK(MazeStack P)
+{
+	if (P) return(1);
+	return(0);
+}//MallocOK
+
+ //建立一个带头结点的空链栈S
+int InitMaze(MazeStack &S)
+{
+	S = (MazeStack)malloc(sizeof(SNode));
+	if (MallocOK(S)) S->next = NULL;
+	return MallocOK(S);
+}//InitMaze
+
+ //进栈：向S的栈顶压入一个结点元素e1,e2
+int PushMaze(MazeStack &S, int e1, int e2)
+{
+	MazeStack p;
+	p = (MazeStack)malloc(sizeof(SNode));
+	if (MallocOK(p) == 0) return 0; //存储分配失败
+	p->data1 = e1;
+	p->data2 = e2;
+	p->next = S->next;
+	S->next = p;
+	return 1;
+}//PushMaze
+
+ //出栈：弹出S中的栈顶元素，并用e1,e2返回
+void PopMaze(MazeStack &S, int &e1, int &e2)
+{
+	MazeStack p = S->next;
+	S->next = p->next;
+	e1 = p->data1;
+	e2 = p->data2;
+	free(p); //释放p结点
+}//PopMaze
+
+ //输出链栈S中的所有数据元素(即可行路径)
+void PrintPath(MazeStack S)
+{
+	MazeStack S1, p = S->next;
+	InitMaze(S1);
+	while (p)
+	{
+		PushMaze(S1, p->data1, p->data2);
+		p = p->next;
+	}//while(p)
+	p = S1->next;
+	printf("\nMaze Path (from End to Start) is\n");
+	printf("\n  (%d,%d)", p->data1, p->data2);
+	int p0 = p->data1;
+	p = p->next;
+	while (p)
+	{
+		if (p0 != p->data1)
+		{
+			p0 = p->data1;
+			printf("\n");
+		}
+		printf("→(%d,%d)", p->data1, p->data2);
+		p = p->next;
+	}//while(p)
+	printf("\n\n");
+	free(S1); S1->next = NULL;
+	return;
+}//PrintPath
+
+ //输出带可行路径的迷宫
+void PrintMaze(int Maze[N][N], int m, int n)
+{
+	for (int j = 0; j<n + 2; ++j)
+	{
+		if (j>9) printf("%d", j);
+		else printf(" %d", j);
+	}
+	printf("\n");
+	for (int i = 0; i<m + 2; ++i)
+	{
+		for (int j = 0; j<n + 2; ++j)
+		{
+			switch (Maze[i][j])
+			{
+			case 1: printf("■"); break;
+			case 2: printf("→"); break;
+			case 3: printf("↓"); break;
+			case 4: printf("←"); break;
+			case 5: printf("↑"); break;
+			default: printf("  "); break;
+			}
+		}
+		printf("%d\n", i);
+	}
+	printf("\n");
+}//PrintPath
+
+ //输出初始迷宫
+void Print0(int Maze[N][N], int m, int n)
+{
+	for (int j = 0; j<n + 2; ++j)
+	{
+		if (j>9) printf("%d", j);
+		else printf(" %d", j);
+	}
+	printf("\n");
+	for (int i = 0; i<m + 2; ++i)
+	{
+		for (int j = 0; j<n + 2; ++j)
+		{
+			if (Maze[i][j] == 1) printf("■");
+			else printf("  ");
+		}
+		printf("%d\n", i);
+	}
+	printf("\nNo Maze Path.\n\n");
+}//Print0
+
+ //搜索可行路径
+void MazePath(int Maze[N][N], int m, int n)
+{
+	MazeStack S; //构造空栈S
+	InitMaze(S);
+	int i = 1, j = 1;  //入口位置
+	while (i + j)
+	{
+		int k = 0;  //判断移动情况
+		if (i == m && j == n) k = 9;
+		else if (Maze[i][j + 1] == 0) k = 2;
+		else if (Maze[i + 1][j] == 0) k = 3;
+		else if (Maze[i][j - 1] == 0) k = 4;
+		else if (Maze[i - 1][j] == 0) k = 5;
+		else if (i == 1 && j == 1) k = 6;
+
+		Maze[i][j] = -1;
+		switch (k)
+		{
+		case 9:  //到达出口
+			PushMaze(S, i, j);
+			PrintPath(S);
+			if (Maze[m - 1][n]>1) Maze[m][n] = 3;
+			else Maze[m][n] = 2;
+			i = j = 0;
+			break;
+		case 2:  //右移
+			PushMaze(S, i, j);
+			Maze[i][j] = 2;
+			++j;
+			break;
+		case 3:  //下移
+			PushMaze(S, i, j);
+			Maze[i][j] = 3;
+			++i;
+			break;
+		case 4:  //左移
+			PushMaze(S, i, j);
+			Maze[i][j] = 4;
+			--j;
+			break;
+		case 5:  //上移
+			PushMaze(S, i, j);
+			Maze[i][j] = 5;
+			--i;
+			break;
+		case 6:  //搜索失败
+			Print0(Maze, m, n);
+			free(S);
+			return;
+			break;
+		default:  //回退
+				  //			Maze[i][j]=-1;
+			PopMaze(S, i, j);
+			break;
+		}
+	}
+	free(S);
+}//MazePath
+
+void main()
+{
+	//指定迷宫的行列数
+	int m = 1, n = 1, Maze[N][N];
+	printf("Please input m,n= ");
+	scanf("%d,%d", &m, &n);
+	if (m<1 || n<1 || m>N - 2 || n>N - 2) return;
+
+	//迷宫置初值(随机)
+	srand((unsigned)time(NULL));
+	for (int i = 0; i<m + 2; ++i)
+	{
+		Maze[i][0] = 1;
+		Maze[i][n + 1] = 1;
+	}
+	for (int i = 0; i<n + 2; ++i)
+	{
+		Maze[0][i] = 1;
+		Maze[m + 1][i] = 1;
+	}
+	for (int i = 1; i<m + 1; ++i)
+		for (int j = 1; j<n + 1; ++j)
+			Maze[i][j] = rand()*rand() % 2;
+	Maze[1][1] = Maze[m][n] = 0;
+
+	MazePath(Maze, m, n);
+	PrintMaze(Maze, m, n);
+}
