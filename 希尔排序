@@ -1,0 +1,24 @@
+#include <stdio.h>
+void insertion_sort(int m, int *arr, int n) {  //一趟增量为m的希尔排序
+	int i, j, k, temp;
+	for (i = 0; i < m; i++) {
+		for (j = i + m; j < n; j += m) {
+			temp = *(arr + j);
+			k = j - m;
+			while (*(arr + k) > temp&&k >= 0) {
+				*(arr + k + m) = *(arr + k);
+				k -= m;
+			}
+			*(arr + k + m) = temp;
+		}
+	}
+}
+
+int main() {
+	int delta[3] = { 5,3,1 };
+	int example[20] = { 25,15,66,88,48,65,21,96,37,55,15,87,98,19,63,35,54,84,25,67 };
+	for (int l = 0; l < 3; l++)
+		insertion_sort(delta[l], example, 20);
+	for (int l = 0; l < 20; l++)
+		printf("%d ", *(example + l));
+}
