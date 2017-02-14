@@ -1,0 +1,101 @@
+#include <graphics.h>
+#include <conio.h>
+
+// 画初始图形
+void draw(int x,int y) {
+	setlinecolor(YELLOW); 
+	setfillcolor(GREEN);
+	fillcircle(x, y, 20);
+}
+
+// 擦掉上次显示的旧图形
+void erase(int x, int y) {
+	setlinecolor(BLACK);
+	setfillcolor(BLACK);
+	fillcircle(x, y, 20);
+}
+
+void main()
+{
+	//初始化
+	initgraph(640, 480);
+	int x = 320;
+	int y = 240;
+	draw(x,y);
+	char c=0;
+
+	begin: while (c != 27)
+	{
+		if (_kbhit()) {              // 获取按键
+			c = _getch();
+
+			
+			
+			
+		again:	switch (c)
+			{
+			case 'a':
+				for (;;) {
+					erase(x, y);
+					x -= 2;
+					draw(x, y);
+					Sleep(30);
+					if (_kbhit()) {
+						c = _getch();
+						goto again;
+					}
+					if (x <= 20)    //边界判断
+						goto begin;
+				}
+			case 'w':
+				for (;;) {
+					erase(x, y);
+					y -= 2;
+					draw(x, y);
+					Sleep(30);
+					if (_kbhit()) {
+						c = _getch();
+						goto again;
+					}
+					if (y <= 20)
+						goto begin;
+				}
+			case 's':
+				for (;;) {
+					erase(x, y);
+					y += 2;
+					draw(x, y);
+					Sleep(30);
+					if (_kbhit()) {
+						c = _getch();
+						goto again;
+					}
+					if (y >= 460)
+						goto begin;
+				}
+			case 'd':
+				for (;;) {
+					erase(x, y);
+					x += 2;
+					draw(x, y);
+					Sleep(30);
+					if (_kbhit()) {
+						c = _getch();
+						goto again;
+					}
+					if (x >=620)
+						goto begin;
+				}
+			
+			}
+
+			
+			
+
+			
+			
+		}
+	}
+
+	closegraph();
+}
