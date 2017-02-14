@@ -1,0 +1,45 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+void swamp(int *a, int *b);
+void FullPermutation(int list[], int begin, int end);
+
+int arr[8] = { 1,2,3,4,5,6,7};
+int main() {
+	int ji;
+	while (scanf("%d", &ji) != EOF) {
+		FullPermutation(arr, 0, ji);
+	}
+	return 0;
+}
+
+
+//交换两个整数
+void swamp(int *a, int *b) {
+	int n=*a;
+	*a = *b;
+	*b = n;
+}
+
+/*
+  The kernel of the algorithm
+  用递归算法进行整数的全排列（n<8)
+  begin--一个排列的开始位置
+  end--当begin==end时完成一次全排列
+*/
+void FullPermutation(int list[], int begin,int end) {
+	int i;
+	if (begin >=end) {
+		for (i = 0; i <end; i++)
+			printf("%d", list[i]);
+		printf("\n");
+	}
+	else {                                  //没有找到一个全排列继续往下找
+		for (i = begin; i < end; i++) {
+			if(begin!=i)
+			swamp(&list[begin], &list[i]);    //交换
+			FullPermutation(list, begin + 1, end);			//递归排列剩余元素)
+			if(begin!=i)
+			swamp(&list[begin], &list[i]);
+		}
+	}
+}
