@@ -1,0 +1,156 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+int main() {
+	int subf(int a[], int b[], int x, int y);
+	char c[205];
+	int a[100], b[100];
+	int x = 0, y = 0, z = 0, t = 1;
+	while (scanf("%c", c+z) != EOF) {
+		if (c[z] == ' ') t = 2;
+		else if (c[z] == '\n') {
+			subf(a, b, x, y);
+			x = 0; y = 0; z = 0; t = 1;
+		}
+		else {
+			if (t == 1) a[x++] = (int)c[z]-48;
+			else b[y++] = (int)c[z]-48;
+		}
+		z++;
+	}
+	return 0;
+}
+
+int subf(int a[], int b[], int x, int y) {
+	int cf = 0, sub,t,zf=0;
+	x--;
+	t = x;
+	y--;
+	if (x > y) {
+		for (; y >= 0; y--) {
+			sub = a[x] - b[y];
+			if (cf) {
+				sub--;
+				if (sub >= 0) cf = 0;
+			}
+			if (sub >= 0) a[x] = sub;
+			else {
+				cf = 1;
+				a[x] = sub + 10;
+			}
+			x--;
+		}
+		while (cf&&x >= 0) {
+			a[x]--;
+			x--;
+			if (a[x] >= 0) cf = 0;
+		}
+		for (int i = 0; i <= t; i++) {
+			if (a[i] != 0) {
+				zf = i; break;
+			}
+		}
+		for (int i = zf; i <= t; i++) printf("%d", a[i]);
+		printf("\n");
+	}
+	else if (x < y) {
+		t = y;
+		for (; x >= 0; x--) {
+			sub = b[y] - a[x];
+			if (cf) {
+				sub--;
+				if (sub >= 0) cf = 0;
+			}
+			if (sub >= 0) b[y] = sub;
+			else {
+				cf = 1;
+				b[y] = sub + 10;
+			}
+			y--;
+		}
+		while (cf&&y >= 0) {
+			b[y]--;
+			if (b[y] >= 0) cf = 0;
+			y--;
+		}
+		for (int i = 0; i <= t; i++) {
+			if (b[i] != 0) {
+				zf = i; break;
+			}
+		}
+		printf("-");
+		for (int i = zf; i <= t; i++) 
+			printf("%d", b[i]);
+		printf("\n");
+	}
+	else {
+		int flag=0;
+		for (int i = 0; i <= x; i++) {
+			if (a[i] == b[i]) continue;
+			else if (a[i] > b[i]) {
+				flag = 1; break;
+			}
+			else {
+				flag = 2; break;
+			}
+		}
+			if (flag == 0) printf("0\n");
+			if (flag == 1) {
+				for (; y >= 0; y--) {
+					sub = a[x] - b[y];
+					if (cf) {
+						sub--;
+						if (sub >= 0) cf = 0;
+					}
+					if (sub >= 0) a[x] = sub;
+					else {
+						cf = 1;
+						a[x] = sub + 10;
+					}
+					x--;
+				}
+				while (cf&&x >= 0) {
+					a[x]--;
+					x--;
+					if (a[x] >= 0) cf = 0;
+				}
+				for (int i = 0; i <= t; i++) {
+					if (a[i] != 0) {
+						zf = i; break;
+					}
+				}
+				for (int i = zf; i <= t; i++) printf("%d", a[i]);
+				printf("\n");
+			}
+			if (flag == 2) {
+				t = y;
+				for (; x >= 0; x--) {
+					sub = b[y] - a[x];
+					if (cf) {
+						sub--;
+						if (sub >= 0) cf = 0;
+					}
+					if (sub >= 0) b[y] = sub;
+					else {
+						cf = 1;
+						b[y] = sub + 10;
+					}
+					y--;
+				}
+				while (cf&&y >= 0) {
+					b[y]--;
+					y--;
+					if (b[y] >= 0) cf = 0;
+				}
+				for (int i = 0; i <= t; i++) {
+					if (b[i] != 0) {
+						zf = i; break;
+					}
+				}
+				printf("-");
+				for (int i = zf; i <= t; i++) printf("%d", b[i]);
+				printf("\n");
+			}
+		
+	}
+	return 0;
+}
