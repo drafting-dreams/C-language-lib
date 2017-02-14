@@ -1,0 +1,77 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <string.h>
+
+void swamp(char *a, char*b) {
+	char c = *a;
+	*a = *b;
+	*b = c;
+}
+
+
+
+void FullPermutation(char list[], int begin, int end,char list2[][6]) {
+	int fac(int d);
+	int flag = fac(end);
+	int i;
+	static int j = 0;
+	if (begin >= end) {
+		for (i = 0; i < end; i++)
+			list2[j][i] = list[i];
+		list2[j++][i] = '\0';
+		if (j == flag)j = 0;
+	}
+	else {                                  //没有找到一个全排列继续往下找
+		for (i = begin; i < end; i++) {
+			if (begin != i)
+				swamp(&list[begin], &list[i]);    //交换
+			FullPermutation(list, begin + 1, end,list2);			//递归排列剩余元素)
+			if (begin != i)
+				swamp(&list[begin], &list[i]);
+		}
+	}
+}
+
+void sort(char cha[][6],int factorial) {
+	for (int i = factorial - 1; i > 0; i--) {
+		for (int k = 0; k < i; k++) {
+			if (strcmp(cha[i], cha[k]) < 0) {
+				char temp[6];
+				strcpy(temp, cha[i]);
+				strcpy(cha[i], cha[k]);
+				strcpy(cha[k], temp);
+			}
+		}
+	}
+}
+
+int fac(int d) {
+	int i,sum;
+	for (sum = 1,i=1;i<=d; i++) {
+		sum *= i;
+	}
+	return sum;
+}
+char arr[5] = { '1','2','3','4','5' };
+char arr2[120][6];
+int main() {
+	int ji,fact,*j,b;
+	while (scanf("%d", &ji) != EOF) {
+		FullPermutation(arr, 0, ji,arr2);
+		fact = fac(ji);
+		sort(arr2, fact);
+		for (int i = 0; i < fact; i++) {
+			putchar('(');
+			for (int k = 0; k < ji; k++)
+			{
+				if (k == 0)printf("%c", arr2[i][k]);
+				else
+					printf(", %c",arr2[i][k]);
+			}
+			putchar(')');
+		}
+		putchar('\n');
+	}
+	return 0;
+}
+
