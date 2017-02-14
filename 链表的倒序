@@ -1,0 +1,61 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+typedef struct Node
+
+{
+	int data;    //数据域
+
+	struct Node *next;  //指针域
+
+} Node, *Linklist;
+//链表初始化
+int InitList(Linklist &L) {
+	L = (Linklist)malloc(sizeof(Node));
+	if (!L) return 0;
+	L->next = NULL;
+	return 1;
+}
+
+//实现链表的逆序排列
+Linklist ReverseList(Linklist &L) {
+	Linklist next;
+	Linklist prev = NULL;
+	while (L!= NULL) {
+		next = L->next;
+		L->next = prev;
+		prev = L;
+		L = next;
+	}
+	return prev;
+}
+
+
+int main() {
+	Linklist S;
+	InitList(S);
+	//输入1到10，十个元素
+	Linklist p = S;
+	for (int i = 1; i <= 10; i++) {
+		Linklist q = (Linklist)malloc(sizeof(Node));
+		q->data = i;
+		q->next=NULL;
+		p->next = q;
+		p = q;
+	}
+	//输出奇数数据
+	p = S;
+	for (int i = 1; i <= 5; i++) {
+		printf("%d ", p->next->data);
+		p = p->next->next;
+	}
+	printf("\n");
+	//逆序输出偶数数据
+	p=ReverseList(S);
+	for (int i = 1; i <= 5; i++) {
+		printf("%d ", p->data);
+		p = p->next->next;
+	}
+	printf("\n");
+	return 0;
+}
