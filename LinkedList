@@ -1,0 +1,209 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <malloc.h>
+//学生信息结构体
+typedef struct student {
+	int score;
+	char name[30];
+	int no;
+	struct student *next;
+}STU,*SList;
+//student
+
+//按学号升序新建存储n个学生信息的链表
+void CreateList(SList &L,int n) {
+
+	void InsertNode(SList &L);
+	L = (SList)malloc(sizeof(STU));
+	printf("请输入%d个学生的学号 成绩 姓名：\n",n);//请严格按照格式输入
+	scanf("%d %d %s", &L->no, &L->score, &L->name);
+	L->next = NULL;
+	for (int i = 1; i <= n - 1; i++) 
+		InsertNode(L);
+}
+//CreateList
+
+//插入一个学生信息并且链表依然按学号升序排列
+void InsertNode(SList &L) {
+	SList p = (SList)malloc(sizeof(STU)),pointer=L;
+	scanf("%d %d %s", &p->no, &p->score, &p->name);
+	while (pointer->next && pointer->next->no < p->no) {
+		pointer = pointer->next;
+	}
+	if (pointer == L) {
+		if (p->no > pointer->no) {
+			p->next = pointer->next;
+			pointer->next = p;
+		}
+		else {
+			p->next = pointer;
+			L = p;
+		}
+	}
+	else {
+		p->next = pointer->next;
+		pointer->next = p;
+	}
+	
+}
+//InsertNode
+
+//显示所有学生信息
+void PrintList(SList L) {
+	SList p = L;
+	printf("显示学生信息：学号，姓名，成绩\n");
+	while (p) {
+		printf("%d %s %d\n", p->no, p->name, p->score);
+		p = p->next;
+	}
+}
+//PrintList
+
+//搜索学号，找到返回1，没有返回0
+int Searchld(SList L,int num) {
+	SList p = L;
+	while (p) {
+		if (p->no == num) return 1;
+		p = p->next;
+	}
+	return 0;
+}
+//Searchld
+
+//删除链表
+int DeleteLink(SList L) {
+	SList p = L,p1;
+	while (p) {
+		p1 = p->next;
+		free(p);
+		p = p1;
+	}
+	return 0;
+}
+//DeleteLink
+
+//删除一个学生的信息
+void DeleteNode(SList &L,int num) {
+	SList p = L;
+	if (p->no == num) {
+		L = p->next;
+		free(p);
+	}
+	else {
+		SList p1 = L->next;
+		while (p1) {
+			if (p1->no == num) {
+				p->next = p1->next;
+				free(p1);
+				break;
+			}
+			p = p->next;
+			p1 = p1->next;
+		}
+	}
+}
+//DeleteNode
+
+//按照成绩降序排序
+void sortScore(SList &L) {
+	SList max = L;  //指向本次排序当前最大结构体
+	SList max_1 = L;
+	SList head = L;   //指向本次排序的头结点
+	SList hhead=(SList)malloc(sizeof(STU));   //指向本次排序头结点之前的节点
+	SList p = L;
+	SList p1 = L->next;
+	int flag = 1;
+	while (head) {
+		max = head;
+		max_1 = hhead;
+		p1 = head->next;
+		p = head;
+		while (p1) {
+			if (p1->score > max->score) {
+				max = p1; max_1 = p;
+			}
+			p = p->next;
+			p1 = p1->next;
+		}
+		if (flag)
+			L = max;
+		flag = 0;
+		if (max != head) {
+			max_1->next = max->next;
+			max->next = head;
+			hhead->next = max;
+			hhead = max;
+		}
+		else {
+			head = head->next;
+			hhead = head;
+		}
+	}
+}
+//sortScore
+
+//按照学号降序排序
+void sortld(SList &L) {
+	SList min = L;  //指向本次排序当前最大结构体
+	SList min_1 = L;
+	SList head = L;   //指向本次排序的头结点
+	SList hhead = (SList)malloc(sizeof(STU));   //指向本次排序头结点之前的节点
+	SList p = L;
+	SList p1 = L->next;
+	int flag = 1;
+	while (head) {
+		min = head;
+		min_1 = hhead;
+		p1 = head->next;
+		p = head;
+		while (p1) {
+			if (p1->no < min->no) {
+				min = p1; min_1 = p;
+			}
+			p = p->next;
+			p1 = p1->next;
+		}
+		if (flag)
+			L = min;
+		flag = 0;
+		if (min != head) {
+			min_1->next = min->next;
+			min->next = head;
+			hhead->next = min;
+			hhead = min;
+		}
+		else {
+			head = head->next;
+			hhead = head;
+		}
+	}
+}
+//sortld
+
+void main() {
+	SList L;
+	int n;
+	printf("请输入学生人数：");
+	scanf("%d", &n);
+	CreateList(L, n);
+	PrintList(L);
+	printf("请输入想查找的学号或想添加的学号\n");
+	scanf("%d", &n);
+	if (Searchld(L, n))
+		printf("存在第%d个学生\n",n);
+	else {
+		printf("第%d个学生不存在,请插入学生信息:学号 成绩 姓名",n);
+		InsertNode(L);
+		PrintList(L);
+	}
+	printf("第二个学生被我们开除了，233333");
+	DeleteNode(L, 2);
+	PrintList(L);
+	printf("按成绩降序排序\n");
+	sortScore(L);
+	PrintList(L);
+	printf("按学号升序排序\n");
+	sortld(L);
+	PrintList(L);
+	DeleteLink(L);
+}
