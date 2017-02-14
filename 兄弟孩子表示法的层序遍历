@@ -1,0 +1,157 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <malloc.h>
+#include <string.h>
+#define N 100
+typedef struct Tnode {
+	int no;			//number
+	char data[N];			//field of data
+	struct Tnode *child;		//The first child
+	struct Tnode *sibling;		//The next sibling
+}Node,*Tcs;
+
+//链栈存储结构
+typedef struct Snode {
+	struct Tnode *tnode;
+	struct Snode *next;
+}*Stack;
+
+FILE *fp = fopen("blizzard.txt", "r");
+//压栈
+void Push(Stack S, Tcs tnode) {
+	Stack p = (Stack)malloc(sizeof(Snode));
+	p->tnode = tnode;
+	p->next = S->next;
+	S->next = p;
+}
+//出栈，返回栈中元素
+Tcs Pop(Stack S, Tcs data) {
+	Stack p = S->next;
+	if (p) {
+		data = p->tnode;
+		S->next = p->next;
+		free(p);
+	}
+	else data = NULL;
+	return data;
+}
+
+//先序遍历，输出元素
+void PrintT(Tcs T)
+{
+	if (!T) return;
+	printf("%-5d%-24s\n", T->no, T->data);
+	//	printf("%4d %-38s (%d-%d)\n",T->no,T->data,T->Child1?T->Child1->no:0,T->Sibling?T->Sibling->no:0);
+	PrintT(T->child);
+	PrintT(T->sibling);
+}
+
+//建立树的存储结构
+void CreateT(Tcs T, Stack S) {
+	Tcs p;
+	if (!feof(fp)) {
+		p = (Tcs)malloc(sizeof(Tnode));
+		fscanf(fp, "%d", &p->no);     //read the number
+		if (p->no == 0) return;
+		fgetc(fp);       //jump over space
+		fgets(p->data, N, fp);
+		p->data[strlen(p->data) - 1] = '\0';
+		p->child = p->sibling = NULL;
+
+		if (T->no == p->no / 10) {
+			Push(S, T);
+			T->child = p;
+		}
+		else {
+			while (p->no < T->no)    //no小于上层，返回
+				T=Pop(S, T);
+			T->sibling = p;
+		}
+		CreateT(p, S);
+		return;
+	}
+}
+
+void Search(Tcs T,Stack S) {
+	if (!T) return;
+	Tcs p, q = T;
+	int num;		//索引号
+	
+
+	while (1) {
+		if (!q->child)
+		{
+			printf("没有下一层的信息！\n");
+			q=Pop(S, q);
+			if (!q) break;
+			continue;
+		}
+		Push(S, q);
+		q = q->child;
+		p = q;		//当前层第一个孩子节点
+		//显示当前层信息
+		while (q) {
+			printf("%-3d%s\n", q->no, q->data);
+			q = q->sibling;
+		}
+		printf("\n(选择0以结束） ");
+		scanf("%d", &num);
+		if (num < 1) break;
+		if (num < p->no) {
+			q = Pop(S, q);
+			if (q->no > 10) q = Pop(S, q);
+			else q = T;
+			continue;
+		}
+		q = p;
+		while (q) {
+			if (q->no == num)break;
+			q = q->sibling;
+		}
+		if (!q) Pop(S, q);
+	}
+	printf("\n");
+}
+
+
+void main() {
+	//Create root node
+	Tcs p = (Tcs)malloc(sizeof(Tnode));
+	p->no = 0;
+	strcpy(p->data, "Blizzcon");
+	p->child = p->sibling = NULL;
+
+	//Creat a new Stack
+	Stack S = (Stack)malloc(sizeof(Snode));
+	S->next = NULL;
+	CreateT(p, S);
+	PrintT(p);
+	Search(p, S);
+}
+
+
+//Blizzard.txt
+/*
+1 Hearthstone
+11 China
+12 Europe
+121 Russia
+122 Ukraine
+123 German
+124 England
+13 America
+14 Asia
+2 OverWatch
+21 Asia
+211 China
+222 Korea
+223 Singapore
+224 Thailand
+22 America
+23 Europe
+3 WarCraft
+31 China
+32 Erope
+33 North America
+34 Korea
+*/
