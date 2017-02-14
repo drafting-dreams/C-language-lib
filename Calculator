@@ -1,0 +1,69 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <math.h>
+double a, b, c, k, l, p;
+//输入相应函数的参数
+void shuru(int flag) {
+	if (flag == 1) {
+		printf("\n请输入一次函数y=kx+b相应的参数k,b=");
+		scanf("%lf,%lf", &k, &l);
+	}
+	else if (flag == 2) {
+		printf("\n请输入二次函数y=ax^2+bx+c相应的参数a,b,c=");
+		scanf("%lf,%lf,%lf",&a,&b,&c);
+	}
+	else if (flag == 3) {
+		printf("\n请输入指数函数y=a^x相应的参数a=");
+		scanf("%lf", &p);
+	}
+	else return;
+}//shuru
+
+//一次函数
+double yici(double x) {
+	return k*x + l;
+}//yici
+
+//二次函数
+double erci(double x) {
+	return a*pow(x,2) + b*x + c;
+}//erci
+
+//指数函数
+double zhishu(double x) {
+	return pow(p, x);
+}//zhishu
+
+//正弦函数
+double sinf(double x) {
+	return sin(x);
+}//sinf
+
+//定积分函数
+double jifen(double a1, double a2, int n, double(*p)(double x)) {
+	double area = 0;
+	double delta = (a2 - a1) / n;
+	for (int i = 1; i <= n; i++) 
+		area += delta*(*p)(a1 + i*delta);
+	return area;
+}//jifen
+
+void main() {
+	double(*p)(double x);
+	double a1, a2;
+	int n, no;
+	printf("1.一次函数 2.二次函数 3.指数函数 4.正弦函数\n\n请输入积分上下限以及积分段数和相应的函数编号a1,a2,n,k=");
+	scanf("%lf,%lf,%d,%d", &a1, &a2, &n, &no);
+	shuru(no);
+	switch(no) {
+	case 1:p = yici; break;
+	case 2:p = erci; break;
+	case 3:p = zhishu; break;
+	case 4:p = sinf; break;
+	default:return;
+	}
+	printf("所求积分值为：%.3lf\n",jifen(a1, a2, n, p));
+	printf("按回车结束");
+	getchar();
+	getchar();
+}
