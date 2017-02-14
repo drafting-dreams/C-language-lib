@@ -1,0 +1,105 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <malloc.h>
+//二叉链表结构
+typedef struct Tnode
+{
+	char data;
+	struct Tnode *lc;
+	struct Tnode *rc;
+}Tnode,*Tree;
+
+//链表初始化
+int InitTree(Tree &T) {
+	T = (Tree)malloc(sizeof(Tnode));
+	if (!T) return 1;
+	T->lc = T->rc = NULL;
+	return 0;
+}
+
+//构造字母链表，读取字符串，把字母读入
+int Treecreat(Tree &T,char cha[],int k) {
+	char ch;
+	ch = cha[k];
+	while(ch){
+		if (ch >= 'A'&&ch <= 'Z' || ch >= 'a'&&ch <= 'z') {
+			Tree p;
+			InitTree(p);
+			p->data = ch;
+			if (cha[k - 1] == ',')T->rc = p;
+			else T->lc = p;
+			k++;
+			k=Treecreat(p, cha, k);
+		}
+		if (ch == '(') {
+			if(cha[k + 1] == ',')
+			k += 2;
+			else k++;
+		}
+		if (ch == ',') {
+			k++; return k;
+		}
+		if (ch == ')') {
+			if (cha[k - 1] == ',') k++;
+			else {
+				k++;
+				return k;
+			}
+		}
+		ch = cha[k];
+	}
+	return k;
+}
+
+//计算二叉树高度
+int TreeDepth(Tree T) {
+	if (!T) return 0;
+	int ld, rd;
+	ld = TreeDepth(T->lc);
+	rd = TreeDepth(T->rc);
+	if (rd > ld) ld = rd;
+	return ld + 1;
+}
+
+//先序遍历
+void PreOrder(Tree &T) {
+	if (!T) return;
+	printf("%c", T->data);
+	PreOrder(T->lc);
+	PreOrder(T->rc);
+}
+
+//中序遍历
+void InOrder(Tree &T) {
+	if (!T) return;
+	InOrder(T->lc);
+	printf("%c", T->data);
+	InOrder(T->rc);
+}
+
+//后序遍历
+void PostOrder(Tree &T) {
+	if (!T) return;
+	PostOrder(T->lc);
+	PostOrder(T->rc);
+	printf("%c", T->data);
+}
+
+int main() {
+	char a[] = "(c(s,u),s(c,s(,e)))";
+	Tree apple;
+	InitTree(apple);
+	apple->data = 's';
+	Treecreat(apple, a, 0);
+	printf("该二叉树的高度为：%d\n", TreeDepth(apple));
+	printf("先序遍历结果：");
+	PreOrder(apple);
+	printf("\n");
+	printf("中序遍历结果：");
+	InOrder(apple);
+	printf("\n");
+	printf("后序遍历结果：");
+	PostOrder(apple);
+	printf("\n");
+	return 0;
+}
