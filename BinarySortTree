@@ -1,0 +1,118 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <malloc.h>
+#include <stdlib.h>
+#include <time.h>
+typedef struct Tnode
+{
+	int data; //关键字
+	struct Tnode *lc; //左指针
+	struct Tnode *rc; //右指针
+} Tnode, *Tree;
+
+//中序遍历递归
+void Inorder(Tree T) {
+	if (!T) return;
+	Inorder(T->lc);
+	printf("%5d", T->data);
+	Inorder(T->rc);
+}//Inorder
+
+//查找算法
+int Search(Tree T, int key) {
+	if (!T)return 0;
+	if (key == T->data) return 1;
+	if (key < T->data) return Search(T->lc, key);
+	return Search(T->rc, key);
+}//Search
+
+Tree SearchT(Tree T, int key, Tree &p) {
+	if (!T) return 0;
+	if (key == T->data) return T;
+	p = T;//p记录双亲节点
+	if (key < T->data) return SearchT(T->lc, key, p);
+	return SearchT(T->rc, key, p);
+}//SearchT
+
+//插入算法
+int Insert(Tree &T, int key) {
+	Tree p = T;
+	if (SearchT(T, key, p)) return 0;
+	Tree s = (Tree)malloc(sizeof(Tnode));
+	s->data = key;
+	s->lc = NULL;
+	s->rc = NULL;
+	if (!p)T = s;
+	else {
+		if (key < p->data) p->lc = s;
+		else p->rc = s;
+	}
+	return 1;
+}
+	// 二叉排序树的删除算法
+	int DeleteBST(Tree &T, int key)
+	{
+		Tree p = T; 	//p指向双亲结点
+		Tree q = SearchT(T->lc, key, p);  //q指向被删除结点
+		if (!q) return 0;  //查找不成功
+
+						   //叶子结点：删除结点p的左子树或右子树
+		if (!q->lc && !q->rc)
+		{
+			if (key<p->data) p->lc = NULL;
+			else p->rc = NULL;
+			free(q);
+		}
+		else if (!q->rc)  //没有右支
+		{
+			if (key<p->data) p->lc = q->lc;
+			else p->rc = q->lc;
+			free(q);
+		}
+		else if (!q->lc)  //没有左支
+		{
+			if (key<p->data) p->lc = q->rc;
+			else p->rc = q->rc;
+			free(q);
+		}
+		else  //双分支结点
+		{
+			p = q;
+			//搜索被删结点的前驱
+			Tree s = q->lc;
+			while (s->rc)
+			{
+				p = s;
+				s = s->rc;
+			}
+			q->data = s->data;
+			p->rc = s->lc;
+			free(s);
+		}
+		return 1;  //删除操作成功
+	} //DeleteBST
+
+	void main() {
+		int i, n=0, K[30];
+		Tree T = (Tree)malloc(sizeof(Tnode));
+		T->data = 1000;
+		T->lc = NULL;
+		T->rc = NULL;
+		printf("\n关键字个数（<30）n=");
+		while (n < 1 || n>30) scanf("%d", &n);
+		srand(time(0));
+		if (n != 16)printf("\n");
+		for (i = 0; i < n; i++) {
+			K[i] = rand() % 90 + 10;
+			printf("%2d%4d", i + 1, K[i]);
+			if (!Insert(T, K[i])) putchar(10);
+		}
+		putchar(10);
+		Inorder(T->lc);
+		printf("\n\n删除第几个关键字？");
+		i = 0;
+		while (i < 1 || i>30)scanf("%d", &i);
+		DeleteBST(T, K[i-1]);
+		Inorder(T->lc);
+		printf("\n\n");
+	}
