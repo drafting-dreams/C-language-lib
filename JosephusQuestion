@@ -1,0 +1,57 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <malloc.h>
+typedef struct Node {
+	int data;
+	Node *next;
+}Node,*Linklist;
+
+//构建含有n个元素的循环链表(没有空的头指针）返回值为最后一个指针
+Linklist CreateCircleList(Linklist &L, int n) {
+	Linklist p = (Linklist)malloc(sizeof(Node));
+	if (!p) return 0;
+	L=p;
+	int i;
+	for (i = 1; i <= n; i++) {
+		Linklist q= (Linklist)malloc(sizeof(Node));
+		if (!q) return 0;
+		p->data = i;
+		p->next = q;
+		if (i != n)
+			p = q;
+		else
+			p->next = L;
+	}
+	return p;
+}
+
+//Josephus循环
+void JosephusPop(Linklist &L,Linklist &L2,int k, int m) {
+	Linklist pointer = (Linklist)malloc(sizeof(Node));
+	pointer = L;
+	Linklist q = (Linklist)malloc(sizeof(Node));
+	q = L2;
+	int i, j;
+	for (i = 1; i < k; i++) {
+		pointer = pointer->next;
+		q = q->next;
+	}
+	while (pointer != pointer->next) {
+		for (j = 1; j < m; j++) {
+			pointer = pointer->next;
+			q = q->next;
+		}
+		printf("%d\n", pointer->data);
+		q->next = pointer->next;
+		free(pointer);
+		pointer = q->next;
+	}
+	printf("%d\n", pointer->data);
+}
+
+int main(){
+	Linklist S; 
+	Linklist S2=CreateCircleList(S, 9);
+	JosephusPop(S, S2, 5, 7);
+	return 0;
+}
