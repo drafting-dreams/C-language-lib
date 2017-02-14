@@ -1,0 +1,228 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include <string.h>
+
+#define N 7		//最大顶点数
+#define Type char		//数据元素类型
+FILE *fp = fopen("Graph.txt", "r");
+
+//邻接表存储结构
+typedef struct Anode {
+	int Vi;		//邻接点在顺序表中的位置
+	int Wi;
+	struct Anode *next;
+}Alink;
+
+//表头指针结构
+typedef struct {
+	Alink *Vh;
+	Type data;
+}Vnode;
+
+//图的邻接表存储结构
+typedef struct{
+	Vnode V0[N];		//链表头顺序表
+	int n, m;		//实际顶点数与边数
+	int V1[N];		//访问标识
+}Alist;
+
+//显示图的邻接表结构
+void AlistPrint(Alist G) {
+	printf("\n");
+	for (int k = 0; k < G.n; k++) {
+		printf("%d [%c", k, G.V0[k].data);
+		Alink *p = G.V0[k].Vh;
+		while (p) {
+			printf(",*]->[%c,%d", G.V0[p->Vi].data, p->Wi);
+			p = p->next;
+		}
+		printf(",^]\n");
+	}
+}
+
+//图的邻接表初始化
+void AlistInit(Alist &G) {
+	char ch;
+	fscanf(fp, "%d,%d", &G.n, &G.m);
+	if (G.n > N) G.n = N;
+	fscanf(fp, "%c", &ch);
+	printf("\nn=%d, m=%d\n", G.n, G.m);
+	for (int k = 0; k < G.n; k++) {
+		fscanf(fp, "%c", &G.V0[k].data);
+		G.V0[k].Vh = NULL;
+	}
+	fscanf(fp, "%c", &ch);
+}//AlistInit
+
+//通过输入边，建立邻接表结构
+void AlistCreate(Alist &G) {
+	printf("Aacency list:\n");
+	int v1 = 0, v2 = 0, w = 0;
+	Alink *p, *q;
+	for (int i = 0; i < G.m; i++) {
+		fscanf(fp, "%d,%d,%d", &v1, &v2, &w);
+		if (v1 == v2 || v1 < 1 || v2 < 1) break;
+		v1--;
+		v2--;
+		p = (Alink*)malloc(sizeof(Anode));
+		p->Vi = v2;
+		p->Wi = w;
+		p->next = NULL;
+		if (!G.V0[v1].Vh)G.V0[v1].Vh = p;
+		else {
+			q = G.V0[v1].Vh;
+			while (q->next) 
+				q = q->next;
+			q->next= p;
+		}
+	}
+	fclose(fp);
+	AlistPrint(G);
+}//AlistCreate
+
+ //求顶点v在图G中的位置(下标)
+int LocationV(Alist G, Type v)
+{
+	int k;
+	for ( k = 0; k<G.n; ++k)
+		if (G.V0[k].data == v) return k;
+	if (k>G.n) return -1;
+	G.V0[k].data = v;
+	G.V0[k + 1].data = '\0';
+	return k;
+}//LocationV
+
+ //访问顶点k的描述函数
+void Visit(Alist G, int k)
+{
+	printf("%c ", G.V0[k].data);
+}//Visit
+
+//深度优先遍历连通图
+void DFS(Alist &G, int k) {
+	Visit(G, k);
+	G.V1[k] = 1;
+	Alink *p = G.V0[k].Vh;
+	while (p) {
+		if (!G.V1[p->Vi]) DFS(G, p->Vi);
+		p = p->next;
+	}
+}//DFS
+
+//深度优先遍历图
+void DFSTraverse(Alist G, Type v) {
+	printf("\nDepth First Search:\n");
+	for (int i = 0; i < G.n; i++) 
+		G.V1[i] = 0;
+	int k = LocationV(G, v);
+	if (k < 0) return;
+	DFS(G, k);
+	for (int i = 0; i < G.n; i++) 
+		if (!G.V1[i]) DFS(G, i);
+	printf("\n\n");
+}//DFSTraverse
+
+//广度优先遍历图
+void BFS(Alist G, Type v) {
+	printf("\nBreadth First Search:\n");
+	int count = 0;
+	for (int i = 0; i < G.n; i++)
+		G.V1[i] = 0;
+	while (count < G.n) {
+		int k = LocationV(G, v);
+		if (k < 0) return;
+		Visit(G, k);
+		G.V1[k] = 1;
+		count++;
+		int f = 0, r = 0, Q[N] = { 0 };
+		Q[r++] = k;
+		while (r > f) {
+			int j = Q[f++];
+			Alink *p = G.V0[j].Vh;
+			while (p) {
+				if (!G.V1[p->Vi]) {
+					Visit(G, p->Vi);
+					G.V1[p->Vi] = 1;
+					count++;
+					Q[r++] = p->Vi;
+				}
+				p = p->next;
+			}
+		}
+		if (count<G.n)
+			for (int o = 0; o < G.n; o++) {
+				if (!G.V1[o]) { v = G.V0[o].data; break; }
+			}
+	}
+	printf("\n\n");
+}//BFS
+
+//深度优先遍历G，求的一条从u到v的简单路径
+int DFS_Path(Alist G, Type u, Type v) {
+	int j = LocationV(G, u);
+	if (j < 0) return 0;
+	Visit(G, j);
+	G.V1[j] = 1;
+	Alink *p = G.V0[j].Vh;
+	while (p) {
+		if (G.V0[p->Vi].data == v) {
+			Visit(G, p->Vi);
+			return 1;
+		}
+		if (!G.V1[p->Vi] && DFS_Path(G, G.V0[p->Vi].data, v)) return 1;
+	}
+	return 0;
+}     //DFS_Path
+
+//判断顶点u，v之间是否存在一条长度为k的简单路径
+int kPath(Alist G, Type u, Type v, int k) {
+	if (k<0) return 0;
+	int j = LocationV(G, u);
+	if (j<0) return 0;
+	Visit(G, j);
+	G.V1[j - 1] = 1;
+	k--;
+	Alink *p = G.V0[j].Vh;
+	while (p)
+	{
+		if (G.V0[p->Vi].data == v && !k)
+		{
+			Visit(G, p->Vi);
+			return 1;
+		}
+		if (!G.V1[p->Vi] && kPath(G, G.V0[p->Vi].data, v, k)>0) return 1;
+		p = p->next;
+	}
+	return 0;
+} //DFS_path 
+
+//从顶点u到v的路径
+void Path1(Alist G) {
+	Type u, v;
+	printf("u,v=");
+	scanf( "%c,%c", &u, &v);
+	for (int i = 0; i < G.n; i++)
+		G.V1[i] = 0;
+	printf("\nPath:");
+	if (!DFS_Path(G, u, v)) printf("No Foundings!");
+	for (int k = 0; k<G.n; ++k)
+		G.V1[k] = 0;  //访问标示初始化
+	int k;
+	printf("\n\nk = ");
+	scanf("%d", &k);
+	printf("Path(%d) ", k);
+	if (!kPath(G, u, v, k)) printf(" No Found!");
+}//Path1
+
+void main()
+{
+	Alist G;
+	AlistInit(G);
+	AlistCreate(G);
+	DFSTraverse(G, 'a');
+	BFS(G, 'a');
+	Path1(G);
+	printf("\n\n");
+}
