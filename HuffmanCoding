@@ -1,0 +1,132 @@
+#define _CRT_SECURE_NO_WARNINGS
+//3-2  哈夫曼编码(算法1)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#define N 9
+
+typedef struct
+{
+	char data;	//存放结点的元素值
+	int Wt;		//存放结点的权值
+	int Np, Nl, Nr;	//指向双亲、孩子结点的指针
+} HTree;
+HTree Ht[2 * N];		//存放haffman树
+
+						//选择两个Np为0，且Wt最小的结点s1和s2
+void Select(int i, int *s1, int *s2)
+{
+	*s1 = *s2 = 1;
+	int m1 = 60 * Ht[1].Wt, m2 = 10 * m1;
+	for (int j = 1; j<i; j++)
+	{
+		if (Ht[j].Np>0) continue;
+		if (Ht[j].Wt<m1)
+		{
+			m2 = m1;
+			*s2 = *s1;
+			m1 = Ht[j].Wt;
+			*s1 = j;
+		}
+		else if (Ht[j].Wt<m2)
+		{
+			m2 = Ht[j].Wt;
+			*s2 = j;
+		}
+	}
+}
+
+//构造哈夫曼树
+void C_HTree(int n)
+{
+	int i, s1 = 0, s2 = 0;
+	printf("\nHTree:\n");
+	for (i = n + 1; i <= 2 * n - 1; i++)
+	{
+		Select(i, &s1, &s2);	//选择2个权值最小的结点
+		Ht[i].Wt = Ht[s1].Wt + Ht[s2].Wt;
+		Ht[i].Nl = s1;
+		Ht[i].Nr = s2;
+		Ht[s1].Np = i;
+		Ht[s2].Np = i;
+		printf("%2d: %d(%d,%d)\n", i - n, Ht[i].Wt, Ht[s1].Wt, Ht[s2].Wt);
+	}
+	putchar(10);
+}
+
+//从叶子结点到根，逆向求每个叶子结点的哈夫曼编码
+void C_HuffCode(int n)
+{
+	char code[N];  //存放当前叶子结点的哈夫曼编码
+	for (int i = 1; i <= n; i++)
+	{
+		int j = i, k = 0;	//从当前叶子结点开始
+		while (Ht[j].Np>0)
+		{
+			if (Ht[Ht[j].Np].Nl == j) code[k++] = '0';  //左分支标0
+			else code[k++] = '1';  //右分支标1
+			j = Ht[j].Np;
+		}
+		printf("\n%c: ", Ht[i].data);
+		for (j = k - 1; j >= 0; j--) printf("%c", code[j]);
+	}
+	printf("\n");
+}
+
+//输出哈夫曼树
+void P_HTree(int n)
+{
+	int i, m = 2 * n - 1;
+	printf("\nHTree:\n");
+	for (i = 1; i <= n; i++)
+		printf("%5c", Ht[i].data);
+	putchar(10);
+	for (i = 1; i <= m; i++)
+		printf("%5d", Ht[i].Wt);
+	putchar(10);
+	for (i = 1; i <= m; i++)
+		printf("%5d", Ht[i].Np);
+	putchar(10);
+	for (i = 1; i <= m; i++)
+		printf("%5d", Ht[i].Nl);
+	putchar(10);
+	for (i = 1; i <= m; i++)
+		printf("%5d", Ht[i].Nr);
+	putchar(10);
+}
+
+
+void main()
+{
+	srand(time(0));
+	int i, n;
+	printf("\nn = ");
+	scanf("%d", &n);	//输入结点个数
+	if (n>N) n = N;	//最多N个结点
+	if (n<2) n = 2;	//最少2个结点
+
+					//初始化：随机产生n个正整数
+	for (i = 1; i <= n; i++)
+	{
+		Ht[i].data = i + 64;	//结点元素值
+		Ht[i].Wt = rand() % 50 + 1;
+		printf("%5c", Ht[i].data);
+		Ht[i].Np = Ht[i].Nl = Ht[i].Nr = 0;
+	}	putchar(10);      //换行
+	for (i = 1; i <= n; i++)
+		printf("%5d", Ht[i].Wt);
+	putchar(10);
+	for (i = 1; i <= n; i++)
+		printf("%5d", Ht[i].Np);
+	putchar(10);
+	//分支结点初始化
+	for (i = n + 1; i <= 2 * n - 1; i++)
+		Ht[i].Wt = Ht[i].Nl = Ht[i].Np = Ht[i].Nr = 0;
+
+	C_HTree(n);
+	P_HTree(n);
+	C_HuffCode(n);
+	putchar(10);
+}
