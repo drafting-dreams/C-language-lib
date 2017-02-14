@@ -1,0 +1,81 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+//计算过程中不能出现小数
+int number[4];
+char ch[4];
+int flag = 0;
+char cha;
+int ff;
+void find(int n) {
+	if (n == 1) {
+		if (number[0] == 24) {
+			flag = 1; return;
+		}
+		else return;
+	}
+	else {
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				int a, b;
+				a = number[i];
+				b = number[j];
+				number[j] = number[n - 1];
+				number[i] = a + b;
+				find(n - 1);
+				number[i] = a - b;
+				find(n - 1);
+				number[i] = b - a;
+				find(n - 1);
+				number[i] = a*b;
+				find(n - 1);
+				if (b != 0&&a%b==0) {
+					number[i] = a / b;
+					find(n - 1);
+				}
+				if (a != 0 && b %a == 0) {
+					number[i] = b / a;
+					find(n - 1);
+				}
+				number[i] = a;
+				number[j] = b;
+			}
+		}
+	}
+	
+}
+int main() {
+	while (scanf("%c",&ch[0]) != EOF) {
+		flag = 0;
+		ff = 0;
+		if (ch[0] == '1') {
+			scanf("%c", &cha);
+			if (cha == '0')ch[0] = ':';  //10
+		}
+		
+		for (int i = 1; i <= 3; i++) {
+			scanf(" %c", &ch[i]);
+			if (ch[i] == '1') {
+				scanf("%c", &cha);
+				if (cha == '0')
+					ch[i] = ':';
+				if (i == 3&&cha!='0') ff = 1;
+			}
+		}
+		
+		for (int i = 0; i < 4; i++) {
+			if (ch[i] == 'A') number[i] = 1;
+			else if (ch[i] == 'J')number[i] = 11;
+			else if (ch[i] == 'Q')number[i] = 12;
+			else if (ch[i] == 'K')number[i] = 13;
+			else number[i] = (int)ch[i] - 48;
+		}
+		find(4);
+		if (flag)printf("1\n");
+		else printf("0\n");
+		if(!ff)
+		scanf("%c", &cha);
+	}
+	return 0;
+}
